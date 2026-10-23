@@ -45,16 +45,15 @@ func TestAddGetDelete(t *testing.T) {
 	require.NoError(t, err)
 	require.NotEmpty(t, number)
 
+	parcel.Number = number
+
 	// get
 	// получите только что добавленную посылку, убедитесь в отсутствии ошибки
 	// проверьте, что значения всех полей в полученном объекте совпадают со значениями полей в переменной parcel
 	stored := Parcel{}
 	stored, err = store.Get(number)
 	require.NoError(t, err)
-	require.Equal(t, parcel.Client, stored.Client)
-	require.Equal(t, parcel.Status, stored.Status)
-	require.Equal(t, parcel.Address, stored.Address)
-	require.Equal(t, parcel.CreatedAt, stored.CreatedAt)
+	require.Equal(t, parcel, stored)
 
 	// delete
 	// удалите добавленную посылку, убедитесь в отсутствии ошибки
@@ -177,12 +176,8 @@ func TestGetByClient(t *testing.T) {
 		// в parcelMap лежат добавленные посылки, ключ - идентификатор посылки, значение - сама посылка
 		// убедитесь, что все посылки из storedParcels есть в parcelMap
 		// убедитесь, что значения полей полученных посылок заполнены верно
-		if p, exists := parcelMap[parcel.Number]; exists {
-			require.Equal(t, p.Status, parcel.Status)
-			require.Equal(t, p.Address, parcel.Address)
-			require.NotEmpty(t, parcel.CreatedAt)
-		} else {
-			t.Fatalf("recieved parcel with unexpected id: %d", parcel.Number)
-		}
+		p, ok := parcelMap[parcel.Number]
+		require.True(t, ok, "parcel with id %d not found in map", parcel.Number)
+		require.Equal(t, p, parcel)
 	}
 }
